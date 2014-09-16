@@ -95,6 +95,8 @@ LOCAL_SRC_FILES := \
 	DvmConfig.cpp \
 	DvmSystemCoreValues.cpp \
 	DvmSystemSwitchDecisionTree.cpp \
+	DvmSystemCoreValuesAccelerometer.cpp \
+	DvmSystemActivityDetection.cpp \
 	Exception.cpp \
 	Hash.cpp \
 	IndirectRefTable.cpp.arm \
@@ -250,7 +252,6 @@ ifeq ($(dvm_arch),arm)
 		arch/arm/HintsEABI.cpp \
 		mterp/out/InterpC-$(dvm_arch_variant).cpp.arm \
 		mterp/out/InterpAsm-$(dvm_arch_variant).S
-		
 
 
   ifeq ($(WITH_JIT),true)

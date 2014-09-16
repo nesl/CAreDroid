@@ -20,20 +20,30 @@ dvm_arch := $(TARGET_ARCH)
 dvm_arch_variant := $(TARGET_ARCH_VARIANT)
 
 include $(LOCAL_PATH)/Dvm.mk
-
+#salma added libutils and libbinder and libsensorservice and libgui libandroid to the shared libraies
 LOCAL_SHARED_LIBRARIES += \
+	libutils \
 	libcorkscrew \
 	libcutils \
 	libdl \
 	liblog \
 	libnativehelper \
 	libselinux \
-	libz
+	libz  libbinder  libsensorservice libgui #libandroid-->casue cyclic dependancy!!
+	
+#salma: added the local C includes for sensorservice 
+LOCAL_C_INCLUDES += \
+	frameworks/native/services/sensorservice 	
 
-LOCAL_STATIC_LIBRARIES += libdex
 
-LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
-LOCAL_SHARED_LIBRARIES += libstlport
+
+
+LOCAL_STATIC_LIBRARIES += libdex  
+
+#salma: added frameworks/native/libs/utils/ and frameworks/native/include/utils/  frameworks/native/include/binder
+LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include  frameworks/native/include/binder frameworks/native/libs/binder #frameworks/native/include/utils frameworks/native/libs/utils frameworks/native/include/binder frameworks/native/libs/binder 
+LOCAL_SHARED_LIBRARIES += libstlport 
+
 
 # Don't install on any build by default
 LOCAL_MODULE_TAGS := optional
