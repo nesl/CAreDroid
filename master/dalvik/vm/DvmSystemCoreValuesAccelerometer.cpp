@@ -4,7 +4,7 @@
  *  Created on:  Sept 15, 2014
  *      Author: salma
  * Description: Activity code is taken from Ambulation transportmode.java from NESL github
- * Code is converted to match running in the vm internal thead
+ * Code is converted to match running in the vm internal thread
 */
 
 #include "DvmSystemCoreValuesAccelerometer.h"

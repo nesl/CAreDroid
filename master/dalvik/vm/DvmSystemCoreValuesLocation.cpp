@@ -1,4 +1,4 @@
-//This file does not work
+//This file does not work due to the fact that including libbinder is not working from libdvm
 #include <utils/Log.h>
 #include <binder/Parcel.h>
 #include <binder/ProcessState.h>
@@ -18,7 +18,7 @@ using namespace android;
 //{
 //    return lhs->compare(*rhs);
 //}
-int GetLocation(char* const servicename)
+int getLocation()
 {
     sp<IServiceManager> sm = defaultServiceManager();
    // fflush(stdout);
@@ -36,7 +36,7 @@ int GetLocation(char* const servicename)
    // } else {
    //     services.add(String16(argv[1]));
    //     for (int i=2; i<argc; i++) {
-            args.add(String16(servicename));
+            args.add(String16("location"));
     //    }
    // }
    // const size_t N = services.size();
@@ -45,7 +45,7 @@ int GetLocation(char* const servicename)
        ALOGD("Currently running services:");
 
       //  for (size_t i=0; i<N; i++) {
-            sp<IBinder> service = sm->checkService(String16(servicename));
+            sp<IBinder> service = sm->checkService(String16("location"));
             if (service != NULL) {
                 ALOGD("service != NULL");
             }
@@ -57,21 +57,23 @@ int GetLocation(char* const servicename)
    //         if (N > 1) {
    //            ALOGD( "------------------------------------------------------------"
    //                     "-------------------");
-                ALOGD("DUMP OF SERVICE %s :", servicename);
+                ALOGD("DUMP OF SERVICE Location :");
   //          }
-            FILE* dumpout;
-            dumpout = fopen("/data/tmp/location.txt", "rw");
-            if(dumpout!=NULL){
-            	ALOGD("file is opened");
-            	int fileDesriptor = fileno(dumpout);
-            	int err = service->dump(fileDesriptor, args);
+            //FILE* dumpout;
+           // dumpout = fopen("/data/tmp/location.txt", "rw");
+            //if(dumpout!=NULL){
+           //	ALOGD("file is opened");
+           // 	int fileDesriptor = fileno(dumpout);
+            	int err = service->dump(STDOUT_FILENO, args);
             	if (err != 0) {
             	   	ALOGD("Error dumping service info: (");
             	}
-            	fclose(dumpout);
-            }
+         //   	fclose(dumpout);
+         //  }
 
 
     return 0;
 }
+
+
 

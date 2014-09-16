@@ -57,7 +57,6 @@ endif
 
 # TODO: split out the asflags.
 LOCAL_ASFLAGS := $(LOCAL_CFLAGS)
-
 include $(BUILD_SHARED_LIBRARY)
 
 # Derivation #1
@@ -96,6 +95,8 @@ include $(BUILD_SHARED_LIBRARY)
 #
 # Build for the host.
 #
+#salma: I put WITH_HOST_DALVIK := false
+WITH_HOST_DALVIK := false
 
 ifeq ($(WITH_HOST_DALVIK),true)
 
@@ -109,12 +110,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     WITH_JIT := true
     include $(LOCAL_PATH)/Dvm.mk
 
-    LOCAL_SHARED_LIBRARIES += libnativehelper libcrypto-host libssl-host libicuuc-host libicui18n-host #libutils libbinder
-	#salma added the libbinder and libutils
-	#LOCAL_SHARED_LIBRARIES += \
-	#libutils \
-	#libbinder
-	#endsalma
+    LOCAL_SHARED_LIBRARIES += libnativehelper libcrypto-host libssl-host libicuuc-host libicui18n-host 
 
     LOCAL_LDLIBS := -lpthread -ldl
     ifeq ($(HOST_OS),linux)
@@ -126,6 +122,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     # time. When building this target as a regular static library, certain
     # dependencies like expat are not found by the linker.
     LOCAL_WHOLE_STATIC_LIBRARIES += libexpat libcutils libdex liblog libz
+
 
     # The libffi from the source tree should never be used by host builds.
     # The recommendation is that host builds should always either

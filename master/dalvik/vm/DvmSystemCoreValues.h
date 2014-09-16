@@ -124,6 +124,7 @@ OperatingPoint* dvmGetCurOperatingPoint();
 
 void dvmSystemUpdateBatteryService();
 void dvmSystemUpdateConnectivityState();
+void dvmSystemUpdateSensorService();
 void dvmSystemCoreValuesUpdate();
 
 

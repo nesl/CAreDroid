@@ -9,6 +9,7 @@
 #define DALVIK_SYSTEM_CORE_VALUES_LOCATION_H_
 
 
-int GetLocation(char* const);
+int getLocation();
+
 
 #endif //DALVIK_SYSTEM_CORE_VALUES_LOCATION_H_

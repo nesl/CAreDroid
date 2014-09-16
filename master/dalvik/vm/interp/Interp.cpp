@@ -1896,7 +1896,14 @@ void dvmCheckBefore(const u2 *pc, u4 *fp, Thread* self)
 void dvmInterpret(Thread* self, const Method* method, JValue* pResult)
 {
 	//salma
-	// if(self->isSensitive) ALOGD("In Interpreter thread is sensitive");
+	 if(self->isSensitive){
+		 //ALOGD("In Interpreter thread is sensitive");
+		 if (dvmSystemActivityGetActivityThreadFlag() == false){
+			 ALOGD("dvmSystemActivityGetActivityThreadFlag() == false"); //should appear only once in the log
+			 if(dvmSystemActivityDetectionStartup() == false)
+				 ALOGD("Activity detection thread didn't start!!! ");
+		 }
+	 }
 //
 //	std::string methodclazz=method->clazz->descriptor;
 //	if(methodclazz.find("Activity") != std::string::npos)// || methodclazz.find("Add")!= std::string::npos)
