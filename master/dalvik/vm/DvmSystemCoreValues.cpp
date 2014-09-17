@@ -376,67 +376,98 @@ void dvmSystemUpdateConnectivityState(){
 
 }
 
-void dvmSystemUpdateSensorService(){
-
-//	DalvikSensorData mSensorData;
-//	double x, y, z;
-//	unsigned long timestamp;
-//	if(mSensorData.getAccelerometerData(x, y, z, timestamp) == 0 ){
-//		ALOGD("%lu\t%8f\t%8f\t%8f\t",timestamp, x, y,z);
-//	}
-//	mSensorData.getAccelerometerData(x, y, z, timestamp);
-//	ALOGD("%lu\t%8f\t%8f\t%8f\t",timestamp, x, y,z);
-
+void dvmSystemUpdateActivity(){
 	//Check activity;
-    ALOGD("Current Activity %s", getCurrentActivity().c_str());
-
+   // ALOGD("Current Activity %s", getCurrentActivity().c_str());
+    if (getCurrentActivity().find("still") != std::string::npos)
+    	gCurOperatingpoint.curActivity = ACTIVITY_MASK_STILL;
+    else if (getCurrentActivity().find("walk") != std::string::npos)
+    	gCurOperatingpoint.curActivity = ACTIVITY_MASK_WALK;
+    else if (getCurrentActivity().find("run") != std::string::npos)
+    	gCurOperatingpoint.curActivity = ACTIVITY_MASK_RUN;
 }
 
 void  dvmSystemCoreValuesUpdate(){
+//running from a thread now
+    // struct timespec tm;
+	// clock_gettime(CLOCK_MONOTONIC, &tm);
 
-     struct timespec tm;
-	 clock_gettime(CLOCK_MONOTONIC, &tm);
-    // ALOGD("time clock = %ld", tm.tv_sec);
-     if(tm.tv_sec - CURRENT_TIME < 0 ){
+   //  if(tm.tv_sec - CURRENT_TIME < 0 ){
     	 // clock reset
-    	 CURRENT_TIME = 0;
-     }
-	 if (  (tm.tv_sec - CURRENT_TIME) >= UPDATE_INTERVAL ){ // update each second
-		 ALOGD("Update Values");
-		 CURRENT_TIME = tm.tv_sec;
+   // 	 CURRENT_TIME = 0;
+   //  }
+	// if (  (tm.tv_sec - CURRENT_TIME) >= UPDATE_INTERVAL ){ // update each second
+	//	 ALOGD("Update Values");
+	//	 CURRENT_TIME = tm.tv_sec;
 		// ALOGD("Current time = %lld", CURRENT_TIME);
-		 if(CURRENT_TIME == 61) CURRENT_TIME = 0; //reset the time
+	//	 if(CURRENT_TIME == 61) CURRENT_TIME = 0; //reset the time
 
 		 dvmSystemUpdateConnectivityState(); //this already update the gCurOperatingpoint
 		 dvmSystemUpdateBatteryService();
-		 dvmSystemUpdateSensorService();
+		 dvmSystemUpdateActivity();
+	// }
+	// else{
 
-//		 optpoint->batt->first = (u4)gdvmBatteryService.batteryCapacity;
-//		 optpoint->batt->second = (u4)gdvmBatteryService.batteryTemperature;
-//		 optpoint->batt->third = (u4)gdvmBatteryService.batteryVoltage;
-//		 optpoint->connect->wifi_state = gdvmConnectivity.wifi_state;
-//         optpoint->connect->gps = gdvmConnectivity.gps;
+	// }
 
-//         gCurOperatingpoint.batt->first = (u4)gdvmBatteryService.batteryCapacity;
-//         gCurOperatingpoint.batt->second = (u4)gdvmBatteryService.batteryTemperature;
-//         gCurOperatingpoint.batt->third = (u4)gdvmBatteryService.batteryVoltage;
-//         gCurOperatingpoint.connect->wifi_state = gdvmConnectivity.wifi_state;
-//         gCurOperatingpoint.connect->gps = gdvmConnectivity.gps;
-
-        // optpoint = &gCurOperatingpoint;
-
-		// return true;
-	 }
-	 else{
-		 // do nothing
-		 //optpoint = &gCurOperatingpoint; //the saved one before update
-		 //return false;
-	 }
-
-	 //return gCurOperatingpoint;
 }
 /* ********************************************************************* */
 
+
+/* Updating the operating point using internal thread*/
+
+pthread_t coreValuesHandle;
+bool coreValuesflag = false;
+
+static void* coreValuesCatcherThreadStart(void* arg);
+
+
+bool dvmSystemCoreValuesGetThreadFlag(){
+	return coreValuesflag;
+}
+
+bool dvmSystemCoreValuesStartup(){
+
+	if(coreValuesflag == false)
+		if (!dvmCreateInternalThread(&coreValuesHandle,
+                "CAreDroid Core Values Update", coreValuesCatcherThreadStart, NULL))
+			return false;
+
+	coreValuesflag = true;
+    return true;
+}
+
+void dvmSystemCoreValuesShutdown()
+{
+
+    if (coreValuesHandle == 0)      // not started yet
+        return;
+
+    pthread_kill(coreValuesHandle, SIGQUIT);
+
+    pthread_join(coreValuesHandle, NULL);
+    ALOGV("CAreDroid Core Values Update has shut down");
+}
+
+
+static void* coreValuesCatcherThreadStart(void* arg)
+{
+    Thread* self = dvmThreadSelf();
+
+    UNUSED_PARAMETER(arg);
+
+    while (true)  { //maybe have to put break somewhere
+        dvmChangeStatus(self, THREAD_VMWAIT);
+
+        dvmChangeStatus(self, THREAD_RUNNING);
+
+        dvmSystemCoreValuesUpdate();
+        /*Update each second*/
+    	dvmThreadSleep(1000, 0);
+    }
+
+    return NULL;
+}
 
 
 

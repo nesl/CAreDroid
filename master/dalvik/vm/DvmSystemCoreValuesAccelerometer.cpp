@@ -190,9 +190,9 @@ void getAccelerometerData(){
 	ssize_t n;
     ASensorEvent buffer[8];
 
-    static nsecs_t oldTimeStamp = 0;
+//    static nsecs_t oldTimeStamp = 0;
     double accx, accy, accz;
-    unsigned long timestamp;
+//    unsigned long timestamp;
     double totalForce = 0.0;
     double grav = /*SensorManager::*/GRAVITY_EARTH;
 

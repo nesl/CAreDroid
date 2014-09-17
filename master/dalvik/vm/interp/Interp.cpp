@@ -1903,6 +1903,11 @@ void dvmInterpret(Thread* self, const Method* method, JValue* pResult)
 			 if(dvmSystemActivityDetectionStartup() == false)
 				 ALOGD("Activity detection thread didn't start!!! ");
 		 }
+		 if (dvmSystemCoreValuesGetThreadFlag() == false){
+			 ALOGD("dvmSystemActivityGetActivityThreadFlag() == false"); //should appear only once in the log
+			 if(dvmSystemCoreValuesStartup() == false)
+				 ALOGD("Core Values thread didn't start!!! ");
+		 }
 	 }
 //
 //	std::string methodclazz=method->clazz->descriptor;

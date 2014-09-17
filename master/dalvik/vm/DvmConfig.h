@@ -18,8 +18,12 @@
 
 using namespace std;
 
-
 #define BUILD_PLATFORM_PATH "/system/build.prop"
+
+#define ACTIVITY_MASK_STILL	0x1
+#define ACTIVITY_MASK_WALK	0x2
+#define ACTIVITY_MASK_RUN	0x4
+
 
 /* fwd declarations */
 struct DvmConfigMethod;
@@ -74,7 +78,6 @@ struct batterytuple{
 struct connectivity{
 	bool wifi_state; // connected = true, disconnected  = false
 	int  wifi_link_quality;
-	//int gps;
 	int wifi_signal_level;
 };
 
@@ -83,6 +86,17 @@ struct methodParameter{
 	unsigned int priority;
 	batterytuple ids;
 	connectivity conn;
+	/*Activity  */
+	/* | Run | Walk | Still |
+	 * |  0	 |	0	|	1	|	1	|	still only		|
+	 * |  0	 |	1	|	0	|	2	|	walk only		|
+	 * |  0	 |	1	|	1	|	3	|	still or walk 	|
+	 * |  1	 |	0	|	0	|	4	|	run only		|
+	 * |  1  |	0	|	1	|	5	|	still or run	|
+	 * |  1	 |	1	|	0	|	6	|	walk or run 	|
+	 * |  1	 |	1	|	1	|	7	|	all				|
+	 */
+	unsigned short activitymask;
 };
 
 struct DvmConfigSensitivityItem{

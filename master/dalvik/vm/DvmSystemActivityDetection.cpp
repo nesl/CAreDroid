@@ -55,10 +55,10 @@ static void* activityCatcherThreadStart(void* arg)
         dvmChangeStatus(self, THREAD_VMWAIT);
 
         dvmChangeStatus(self, THREAD_RUNNING);
+
     	getAccelerometerData();
     	// more than the queue event rate for accelerometer data to make sure that when the thread runs the queue already has data available
     	dvmThreadSleep(20, 0);
-
     }
 
     return NULL;

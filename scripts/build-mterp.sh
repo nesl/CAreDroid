@@ -1,4 +1,4 @@
-cd /home/salma/Work/android/orgsourcetree/master/dalvik/vm/mterp/
+cd /home/salma/Work/CAreDroid/orgsourcetree/master/dalvik/vm/mterp/
 ./rebuild.sh
 cd ../../../
 

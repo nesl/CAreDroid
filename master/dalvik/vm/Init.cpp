@@ -35,6 +35,13 @@
 #include "Hash.h"
 #include "JniConstants.h"
 
+
+//start salma
+#include "DvmSystemCoreValues.h"
+#include "DvmSystemActivityDetection.h"
+//endsalma
+
+
 #if defined(WITH_JIT)
 #include "compiler/codegen/Optimizer.h"
 #endif
@@ -1926,6 +1933,13 @@ void dvmShutdown()
 
     /* shut down stdout/stderr conversion */
     dvmStdioConverterShutdown();
+
+    //start salma
+    /* tell Core Values thread and Activity thread to shut down if it was started*/
+    dvmSystemCoreValuesShutdown();
+    dvmSystemActivityDetectionShutdown();
+    //end salma
+
 
 #ifdef WITH_JIT
     if (gDvm.executionMode == kExecutionModeJit) {

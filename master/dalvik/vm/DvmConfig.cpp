@@ -161,6 +161,7 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 		bool begin_tagPriority			= false;
 		bool begin_tagMethodtag			= false;
 		bool begin_tagWifi				= false;
+		bool begin_tagActivity			= false;
 		bool begin_tagListItem			= false;
 		bool begin_tagItemName			= false;
 		bool begin_tagListStartValue	= false;
@@ -314,6 +315,8 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 		        	//__android_log_print(ANDROID_LOG_DEBUG, "DVM DEBUG", "DvmConfig.cpp:%s", tmp.c_str());
 		        	begin_tagMethod = true;
 		        	curDvmConfigClass.numSensitiveMethods++;
+		        	// initialize the activity mask;
+		        	curDvmConfigMethod.methodparam.activitymask = 0;
 //		        	//Debug
 //		        	cout << "curDvmConfigClass.numSensitiveMethods" << curDvmConfigClass.numSensitiveMethods << "\n";
 
@@ -382,6 +385,14 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 		        	else if(tmp == "</wifi>"){
 		        		begin_tagWifi = false;
 		        	}
+		        	else if(tmp == "<activity>"){
+		        		begin_tagActivity = true;
+		        		continue;
+		        	}
+		        	else if(tmp == "</activity>"){
+		        		begin_tagActivity = false;
+		        	}
+
 
 		        }
 		        // Parse Method details
@@ -413,6 +424,21 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 		        if(begin_tagMethod && begin_tagWifi){
 		           	curDvmConfigMethod.methodparam.conn.wifi_state = atoi(tmp.c_str());
 		           	begin_tagWifi = false;
+		        }
+
+		        // Parse Activity
+		        if(begin_tagMethod && begin_tagActivity){
+		        	if (tmp.find("still") != std::string::npos)
+		        		curDvmConfigMethod.methodparam.activitymask = curDvmConfigMethod.methodparam.activitymask | ACTIVITY_MASK_STILL;
+
+		        	if (tmp.find("walk") != std::string::npos)
+		        		curDvmConfigMethod.methodparam.activitymask = curDvmConfigMethod.methodparam.activitymask | ACTIVITY_MASK_WALK;
+
+		        	if (tmp.find("run") != std::string::npos)
+		        		curDvmConfigMethod.methodparam.activitymask = curDvmConfigMethod.methodparam.activitymask | ACTIVITY_MASK_RUN;
+
+		        //	ALOGD("Method %s, Activity Mask = %d",curDvmConfigMethod.methodName.c_str(), curDvmConfigMethod.methodparam.activitymask);
+		           	begin_tagActivity = false;
 		        }
 
 		        // Start parsing the list

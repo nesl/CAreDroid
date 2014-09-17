@@ -78,7 +78,9 @@ struct keyTimeStamp{
 struct OperatingPoint{
 	DvmSystemBatteryService batt;
 	DvmSystemConnectivity connect;
+	unsigned short curActivity;
 };
+
 struct LUTkey{
 	key ClassMethod_ids;
 	OperatingPoint opt;
@@ -124,8 +126,13 @@ OperatingPoint* dvmGetCurOperatingPoint();
 
 void dvmSystemUpdateBatteryService();
 void dvmSystemUpdateConnectivityState();
-void dvmSystemUpdateSensorService();
+void dvmSystemUpdateActivity();
 void dvmSystemCoreValuesUpdate();
+
+bool dvmSystemCoreValuesGetThreadFlag();
+bool dvmSystemCoreValuesStartup();
+void dvmSystemCoreValuesShutdown();
+
 
 
 u4 dvmSystemReturnMethod(/*OperatingPoint* optpoint,*/ DvmDex* pDvmDex, string className, key curClassMethodIds);
@@ -134,6 +141,9 @@ bool dvmSystemCoreValuesCheckLUT(key curClassMethodIds, OperatingPoint optpoint,
 void dvmSystemCoreValuesDebugLUT();
 /*override the less than operator for the insert in LUT map*/
 bool operator <(const LUTkey&lhs, const  LUTkey& rhs);
+
+
+
 
 
 /** Not Used Now */

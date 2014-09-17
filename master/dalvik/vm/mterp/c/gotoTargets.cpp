@@ -472,7 +472,7 @@ GOTO_TARGET(invokeVirtualQuick, bool methodCallRange)
         		//pDexClassDef = dexFindClass(thisPtr->clazz->pDvmDex->pDexFile,thisPtr->clazz->descriptor);
         		//unsigned int classIdx = dexGetIndexForClassDef(thisPtr->clazz->pDvmDex->pDexFile,pDexClassDef);
 
-        	 	dvmSystemCoreValuesUpdate();
+        	 	//dvmSystemCoreValuesUpdate(); // now using thread instead
 				//ALOGD("optpoint %d, %d, %d, %d", optpoint.batt.batteryCapacity, optpoint.batt.batteryTemperature, optpoint.batt.batteryVoltage, optpoint.connect.wifi_state);
 				u4 MethodID = dvmSystemReturnMethod(thisPtr->clazz->pDvmDex, thisPtr->clazz->descriptor, key(thisPtr->clazz->classID ,methodToCall->methodIndex ));
 				//ALOGD("MethodID No tag = %d", MethodID);
