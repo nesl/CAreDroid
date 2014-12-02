@@ -8,6 +8,11 @@
 */
 
 #include "DvmSystemCoreValuesAccelerometer.h"
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <stdlib.h>
+
 
 using namespace android;
 
@@ -27,6 +32,21 @@ std::string curractivity;
 bool accSensorisPrepared = false;
 sp<SensorEventQueue> q;
 
+const char* activityFile = "/sdcard/ActivityData";
+const char* accDataFile  = "sdcard/AccelerometerData";
+
+
+/** Helper only used while debugging**/
+//static int dvmSystemWriteToFile(const char *file, std::string features)
+//{
+//
+//	std::ofstream ofs (file, std::ofstream::out | std::ofstream::app);
+//	ofs << features;
+//	ofs.close();
+//	return 0;
+//
+//}
+
 
 
 std::string getCurrentActivity(){
@@ -40,8 +60,8 @@ void calculateActivity(){
 
 	double sum = 0.0, s = 0.0;
 	double avg = 0.0, a = 0.0;
-	double var = 0.0, v = 0.0;
-	double accFft1, accFft2, accFft3, accFft4, accFft5, a1, a2, a3, a4, a5, a6, a7, a8, a9, a0;
+	double /*var = 0.0,*/ v = 0.0;
+	double /*accFft1, accFft2, accFft3, accFft4, accFft5,*/ a1, a2, a3, a4, a5, a6, a7, a8, a9, a0;
 
 	for (int i = 0; i < dataSize; i++){
 		sum += accData[i];
@@ -52,13 +72,13 @@ void calculateActivity(){
 	for (int i = 0; i < dataSize; i++){
 		sum += pow((accData[i] - avg),2.0);
 	}
-	var = sum / dataSize;
+	//var = sum / dataSize;
 
-	accFft1 = goertzel(accData, 1., dataSize);
-	accFft2 = goertzel(accData, 2., dataSize);
-	accFft3 = goertzel(accData, 3., dataSize);
-	accFft4 = goertzel(accData, 4., dataSize);
-	accFft5 = goertzel(accData, 5., dataSize);
+//	accFft1 = goertzel(accData, 1., dataSize);
+//	accFft2 = goertzel(accData, 2., dataSize);
+//	accFft3 = goertzel(accData, 3., dataSize);
+//	accFft4 = goertzel(accData, 4., dataSize);
+//	accFft5 = goertzel(accData, 5., dataSize);
 
 	for (int i = 0; i < dataSize; i++){
 		accData[i] = accData[i] / 310.; // restore to android measurement
@@ -84,15 +104,33 @@ void calculateActivity(){
 	v = s / dataSize;
 
 	curractivity = activity(v, a, a1, a2, a3, a4, a5, a6, a7, a8, a9, a0);
-
-	//debug
-	//sprintf(features, "%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f",
-	//			v, a, a1, a2, a3, a4, a5, a6, a7, a8, a9, a0, 0., 0., 0.);
 	//ALOGD("currActivity = %s", curractivity.c_str());
-	//ALOGD("features = %s",features);
+	/*******LOGGING ***** BE AWARE IT GROWS THE HEAP SIGNIFICATLLY ***/
+	// log the accelerometer data
+	/*char datachar [200];
+	std::string datastring = "";
+	for (unsigned int i = 0; i < dataSize; i++){
+			double sample = accData[i];
+			sprintf(datachar, ",%2.4f", sample);
+			std::string samplestring(datachar);
+			datastring.append(samplestring);
+	}
+	datastring.append("\n");
+	dvmSystemWriteToFile(accDataFile,datastring);
 
 
+	int activityint  = 0;
+	if (curractivity.find("still") != std::string::npos) activityint = 0;
+	else if (curractivity.find("walk") != std::string::npos) activityint = 1;
+	else if (curractivity.find("run") != std::string::npos) activityint = 2;
 
+	char features[100];
+	sprintf(features, "%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f,%2.4f, %d\n",
+				v, a, a1, a2, a3, a4, a5, a6, a7, a8, a9, a0, activityint);
+    std::string featuresString(features);
+	dvmSystemWriteToFile(activityFile,features);*/
+
+/****************** END OF LOGGING DATA ********/
 }
 
 std::string activity (double var,double avg,double a1,double a2,double a3,double a4,double a5,
@@ -164,6 +202,7 @@ void prepareAccelerometerSensor(/*sp<SensorEventQueue>& q*/ ){
 	//ALOGD("queue=%p\n", q.get());
 
 	Sensor const* accelerometer = mgr.getDefaultSensor(Sensor::TYPE_ACCELEROMETER);
+
 	//ALOGD("accelerometer=%p (%s)\n",
 	//accelerometer, accelerometer->getName().string());
 

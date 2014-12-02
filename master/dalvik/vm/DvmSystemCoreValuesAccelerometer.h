@@ -29,6 +29,7 @@
 #include <gui/SensorEventQueue.h>
 #include <android/sensor.h>
 
+
 void getAccelerometerData();
 std::string getCurrentActivity();
 

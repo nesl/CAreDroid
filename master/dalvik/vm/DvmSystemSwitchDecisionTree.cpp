@@ -33,7 +33,8 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	OperatingPoint* opt = dvmGetCurOperatingPoint(); //gCurOperatingpoint is defined in "DvmSystemCoreValues.h"
 
 	/*default initialization*/
-	int preference = POWER_PREFERENCE;
+	//int preference = POWER_PREFERENCE;
+	e_preference_t preference = power_preference;
 	e_policy_t curpolicy = bestfit;
 	int wifi_connect = 0;
 	unsigned short current_activity = ACTIVITY_MASK_STILL | ACTIVITY_MASK_WALK | ACTIVITY_MASK_RUN;
@@ -43,7 +44,9 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 
 
 	/****************************** Check the Cache ***************************************** */
-	if(dvmSystemCoreValuesCheckLUT(curClassMethodIds, *opt, ClassMethodIds.second)) return ClassMethodIds.second;
+	if(dvmSystemCoreValuesCheckLUT(curClassMethodIds, *opt, ClassMethodIds.second)) {
+		return ClassMethodIds.second;
+	}
 	/*************************************************************************** */
 
 
@@ -75,7 +78,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	if(curpolicy == bestfit){
 		ALOGD("Best Fit");
 		/******************************* Handle Power Preference first ************************** */
-		if(preference == POWER_PREFERENCE){
+		if(preference == power_preference){
 			ALOGD("Power Preference");
 			for (u4 p = 0; p < curClass->powRange.size(); p++){
 				// small rangeof power <= operating power point <= large rangeofPower
@@ -412,7 +415,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 
 
 		/* ****************************** Handle Connectivity Preference First ******************* */
-		else if (preference == CONNECTIVITY_PREFERENCE){
+		else if (preference == connectivity_preference){
 			/*	Get the indices for the wifi connectivity first */
 			//initialize the Check
 			Check_Volt_All = false;
@@ -766,7 +769,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	else if(curpolicy == mustfit){
 		ALOGD("must Fit");
 		/******************************* Handle Power Preference first ************************** */
-		if(preference == POWER_PREFERENCE){
+		if(preference == power_preference){
 
 			ALOGD("Power Preference");
 			for (u4 p = 0; p < curClass->powRange.size(); p++){
@@ -898,7 +901,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 
 		/* ****************************** Handle Connectivity Preference First ******************* */
 
-		else if (preference == CONNECTIVITY_PREFERENCE){
+		else if (preference == connectivity_preference){
 			/*	Get the indices for the wifi connectivity first */
 
 			ALOGD("Connectivity Preference");
@@ -1170,7 +1173,8 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 
 
 	/*default initialization*/
-	int preference = POWER_PREFERENCE;
+	//int preference = POWER_PREFERENCE;
+	e_preference_t preference = power_preference;
 	e_policy_t curpolicy = bestfit;
 	int wifi_connect = 0;
 	unsigned short current_activity = ACTIVITY_MASK_STILL | ACTIVITY_MASK_WALK | ACTIVITY_MASK_RUN;
@@ -1231,7 +1235,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	if(curpolicy == bestfit){
 		ALOGD("Best Fit");
 		/******************************* Handle Power Preference first ************************** */
-		if(preference == POWER_PREFERENCE){
+		if(preference == power_preference){
 			ALOGD("Power Preference");
 			for (u4 p = 0; p < curpowRange->size(); p++){
 				// small rangeof power <= operating power point <= large rangeofPower
@@ -1526,7 +1530,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 
 		/* ****************************** Handle Connectivity Preference First ******************* */
 
-		else if (preference == CONNECTIVITY_PREFERENCE){
+		else if (preference == connectivity_preference){
 			/*	Get the indices for the wifi connectivity first */
 			//initialize the Check
 			Check_Volt_All = false;
@@ -1805,7 +1809,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	else if(curpolicy == mustfit){
 		ALOGD("must Fit");
 		/******************************* Handle Power Preference first ************************** */
-		if(preference == POWER_PREFERENCE){
+		if(preference == power_preference){
 
 			ALOGD("Power Preference");
 			for (u4 p = 0; p < curpowRange->size(); p++){
@@ -1932,7 +1936,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 
 		/* ****************************** Handle Connectivity Preference First ******************* */
 
-		else if (preference == CONNECTIVITY_PREFERENCE){
+		else if (preference == connectivity_preference){
 			/*	Get the indices for the wifi connectivity first */
 
 			ALOGD("Connectivity Preference");

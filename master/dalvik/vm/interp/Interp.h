@@ -23,6 +23,7 @@
 //salma
 #include "DvmSystemCoreValues.h"
 #include "DvmSystemActivityDetection.h"
+#include "DvmSystemLocationDetection.h"
 //endsalma
 
 /*

@@ -1903,6 +1903,13 @@ void dvmInterpret(Thread* self, const Method* method, JValue* pResult)
 			 if(dvmSystemActivityDetectionStartup() == false)
 				 ALOGD("Activity detection thread didn't start!!! ");
 		 }
+		 if (dvmSystemLocationGetLocationThreadFlag() == false){
+			 ALOGD("dvmSystemLocationGetLocationThreadFlag() == false"); //should appear only once in the log
+			 if(dvmSystemLocationDetectionStartup() == false)
+				 ALOGD("Location detection thread didn't start!!! ");
+		 }
+
+
 		 if (dvmSystemCoreValuesGetThreadFlag() == false){
 			 ALOGD("dvmSystemActivityGetActivityThreadFlag() == false"); //should appear only once in the log
 			 if(dvmSystemCoreValuesStartup() == false)

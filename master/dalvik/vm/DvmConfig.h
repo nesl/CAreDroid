@@ -68,6 +68,13 @@ enum e_policy_t{
 	mustfit = 1
 };
 
+enum e_preference_t{
+	power_preference = 0,
+	connectivity_preference = 1,
+	dont_care_preference = 2
+};
+
+
 
 struct batterytuple{
 	unsigned int first; //the highest priority parameter = power
@@ -128,10 +135,11 @@ struct Ranges{
 struct DvmConfigClass{
 	DvmConfigFile * pDvmConfigFile; 	/* pointer to config file we come from */
 	std::string className;
-	int preference; // 0 =power 1 = connectivity
+	//int preference; // 0 =power 1 = connectivity
 	int numSensitiveMethods;// = 0;
 	int numOfTags;
 	e_policy_t policy;
+	e_preference_t preference;
 	vector<pair<u4,u4> > tempRange;
 	vector<pair<u4,u4> > voltRange;
 	vector<pair<u4,u4> > powRange;

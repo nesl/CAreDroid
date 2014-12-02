@@ -285,7 +285,14 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 
 		        //parse class preference
 		        if(begin_tagClassPreference == true){
-		        	curDvmConfigClass.preference =  atoi(tmp.c_str());
+		        	if (tmp.find("power") != std::string::npos)
+		        		curDvmConfigClass.preference = power_preference;
+		        	else if (tmp.find("connectivity") != std::string::npos)
+		        		curDvmConfigClass.preference = connectivity_preference;
+		        	else if (tmp.find("don't care") != std::string::npos)
+		        		curDvmConfigClass.preference = dont_care_preference;
+
+		        	//curDvmConfigClass.preference =  atoi(tmp.c_str());
 		        	begin_tagClassPreference = false;
 		        	continue;
 		        }

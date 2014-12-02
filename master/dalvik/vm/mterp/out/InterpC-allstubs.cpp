@@ -3848,10 +3848,10 @@ GOTO_TARGET(invokeVirtualQuick, bool methodCallRange)
 //        }
 
         /*Use of operating point and switch enabled*/
-       // std::string methodname=methodToCall->name;
-       // if(methodname.find("solve_ChDec") != std::string::npos ){
-       // 	ALOGD("Method Called:  %s.%s",thisPtr->clazz->descriptor, methodToCall->name);
-       //  }
+ //        std::string methodname=methodToCall->name;
+//        if(methodname.find("Adjust") != std::string::npos ){
+//        	ALOGD("Method Called:  %s.%s",thisPtr->clazz->descriptor, methodToCall->name);
+//         }
 
         if(methodToCall->isReblaceable){
         	//ALOGD("Method to call is replaceable: %s.%s", thisPtr->clazz->descriptor, methodToCall->name);
@@ -3861,13 +3861,14 @@ GOTO_TARGET(invokeVirtualQuick, bool methodCallRange)
         		//pDexClassDef = dexFindClass(thisPtr->clazz->pDvmDex->pDexFile,thisPtr->clazz->descriptor);
         		//unsigned int classIdx = dexGetIndexForClassDef(thisPtr->clazz->pDvmDex->pDexFile,pDexClassDef);
 
-        	 	dvmSystemCoreValuesUpdate();
+        	 	//dvmSystemCoreValuesUpdate(); // now using thread instead
 				//ALOGD("optpoint %d, %d, %d, %d", optpoint.batt.batteryCapacity, optpoint.batt.batteryTemperature, optpoint.batt.batteryVoltage, optpoint.connect.wifi_state);
 				u4 MethodID = dvmSystemReturnMethod(thisPtr->clazz->pDvmDex, thisPtr->clazz->descriptor, key(thisPtr->clazz->classID ,methodToCall->methodIndex ));
 				//ALOGD("MethodID No tag = %d", MethodID);
 				//u4 MethodIDtag = dvmSystemReturnMethod(thisPtr->clazz->pDvmDex, thisPtr->clazz->descriptor, key(thisPtr->clazz->classID ,methodToCall->methodIndex), true);
 				//ALOGD("MethodID Tag = %d", MethodIDtag);
 				methodToCall = thisPtr->clazz->vtable[MethodID];
+			//	ALOGD("Method is replaced by:  %s.%s",thisPtr->clazz->descriptor, methodToCall->name);
         	//}
         }
    //     else {

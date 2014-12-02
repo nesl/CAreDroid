@@ -9,7 +9,8 @@
 #define DALVIK_SYSTEM_CORE_VALUES_LOCATION_H_
 
 
-int getLocation();
+int reportLocation();
+void getCurrentLocation(double& latitude, double& longitude);
 
 
 #endif //DALVIK_SYSTEM_CORE_VALUES_LOCATION_H_

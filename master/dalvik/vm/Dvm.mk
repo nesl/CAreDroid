@@ -97,6 +97,8 @@ LOCAL_SRC_FILES := \
 	DvmSystemSwitchDecisionTree.cpp \
 	DvmSystemCoreValuesAccelerometer.cpp \
 	DvmSystemActivityDetection.cpp \
+	DvmSystemCoreValuesLocation.cpp \
+	DvmSystemLocationDetection.cpp \
 	Exception.cpp \
 	Hash.cpp \
 	IndirectRefTable.cpp.arm \

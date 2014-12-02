@@ -75,10 +75,17 @@ struct keyTimeStamp{
 	key ClassMethod_ids;
 	u4 time_stamp;
 };
+
+struct DvmSystemLocation{
+	double latitude;
+	double longitude;
+};
+
 struct OperatingPoint{
 	DvmSystemBatteryService batt;
 	DvmSystemConnectivity connect;
 	unsigned short curActivity;
+	DvmSystemLocation curLocation;
 };
 
 struct LUTkey{

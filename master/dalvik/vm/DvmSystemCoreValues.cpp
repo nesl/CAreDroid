@@ -310,8 +310,6 @@ void dvmSystemUpdateConnectivityState(){
 
 
 	    /*********************GPS***********************************************/
-          /* use the code of dumpsys  (didn't work)*/
-	//    if (getLocation() == 1){};
 
 	    /* use the the property buffer (didn't work)*/
 	    //Always gives gps.disabled = 0
@@ -375,10 +373,10 @@ void dvmSystemUpdateConnectivityState(){
 //	    }
 
 }
-
+/*************************************************************************/
+/* Update Activity */
 void dvmSystemUpdateActivity(){
-	//Check activity;
-   // ALOGD("Current Activity %s", getCurrentActivity().c_str());
+    //ALOGD("Current Activity %s", getCurrentActivity().c_str());
     if (getCurrentActivity().find("still") != std::string::npos)
     	gCurOperatingpoint.curActivity = ACTIVITY_MASK_STILL;
     else if (getCurrentActivity().find("walk") != std::string::npos)
@@ -387,6 +385,17 @@ void dvmSystemUpdateActivity(){
     	gCurOperatingpoint.curActivity = ACTIVITY_MASK_RUN;
 }
 
+
+/************************************************************************/
+/* Update Location */
+void dvmSystemUpdateLocation(){
+	getCurrentLocation(gCurOperatingpoint.curLocation.latitude, gCurOperatingpoint.curLocation.longitude);
+	//ALOGD("Current Reported Location %f, %f", gCurOperatingpoint.curLocation.latitude, gCurOperatingpoint.curLocation.longitude);
+}
+
+
+
+/**********************************************************************/
 void  dvmSystemCoreValuesUpdate(){
 //running from a thread now
     // struct timespec tm;
@@ -402,9 +411,11 @@ void  dvmSystemCoreValuesUpdate(){
 		// ALOGD("Current time = %lld", CURRENT_TIME);
 	//	 if(CURRENT_TIME == 61) CURRENT_TIME = 0; //reset the time
 
+		 //ALOGD("Update Core Values");
 		 dvmSystemUpdateConnectivityState(); //this already update the gCurOperatingpoint
 		 dvmSystemUpdateBatteryService();
 		 dvmSystemUpdateActivity();
+		 dvmSystemUpdateLocation();
 	// }
 	// else{
 
@@ -415,7 +426,6 @@ void  dvmSystemCoreValuesUpdate(){
 
 
 /* Updating the operating point using internal thread*/
-
 pthread_t coreValuesHandle;
 bool coreValuesflag = false;
 
