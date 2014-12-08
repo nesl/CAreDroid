@@ -13,6 +13,7 @@
 #include "stdlib.h"
 #include "DvmSystemCoreValuesAccelerometer.h"
 #include "DvmSystemCoreValuesLocation.h"
+#include "DvmConfig.h"
 
 //#include "DvmSystemCoreValuesSensorService.h"
 //#include "android_runtime/AndroidRuntime.h"
@@ -25,7 +26,7 @@ bool SWITCH_FLAG; //set by the android LOG class // just for now. It can be chan
 OperatingPoint gCurOperatingpoint;
 int64_t CURRENT_TIME = 0;
 //JNIEnv* gCURRENT_ENV;
-
+const double CAREDROID_LOCATION_RESOLUTION = 0.1; //ToDo: needs some research to know the accurate resolution for comparison
 
 /** Helper **/
 static int dvmSystemReadFromFile(const char* path, char* buf, size_t size)
@@ -388,9 +389,27 @@ void dvmSystemUpdateActivity(){
 
 /************************************************************************/
 /* Update Location */
+static bool locationEquals(double a, double b){
+	return fabs(a-b) < CAREDROID_LOCATION_RESOLUTION;
+}
 void dvmSystemUpdateLocation(){
 	getCurrentLocation(gCurOperatingpoint.curLocation.latitude, gCurOperatingpoint.curLocation.longitude);
 	//ALOGD("Current Reported Location %f, %f", gCurOperatingpoint.curLocation.latitude, gCurOperatingpoint.curLocation.longitude);
+	double curlatitude = gCurOperatingpoint.curLocation.latitude;
+	double curlongitude = gCurOperatingpoint.curLocation.longitude;
+	// initialize the current location to anywhere
+	gCurOperatingpoint.curLocation.locationMask = LOCATION_MASK_ANYWHERE;
+
+
+	for(DvmConfigLocationMapIter it = dvmConfigFileGetMapLocationAddress()->begin(); it!=dvmConfigFileGetMapLocationAddress()->end(); ++it){
+		//ALOGD("ClassID:%d MethodID:%d ==> tag:%d, priority:%d, powerindex:%d, tempindex:%d, voltindex:%d ",it->first.first, it->first.second, it->second.tag, it->second.priority, it->second.ids.first, it->second.ids.second, it->second.ids.third);
+		if(locationEquals(curlatitude, it->second.first) && locationEquals(curlongitude, it->second.second)){
+			gCurOperatingpoint.curLocation.locationMask = it->first;
+		}
+	}
+
+
+
 }
 
 

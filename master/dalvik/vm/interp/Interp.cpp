@@ -1915,6 +1915,13 @@ void dvmInterpret(Thread* self, const Method* method, JValue* pResult)
 			 if(dvmSystemCoreValuesStartup() == false)
 				 ALOGD("Core Values thread didn't start!!! ");
 		 }
+
+		 if (dvmConfigLocationUpdateGetThreadFlag() == false){
+			 ALOGD("dvmConfigLocationUpdateGetThreadFlag() == false"); //should appear only once in the log
+			 if(dvmConfigLocationUpdateStartup() == false)
+				 ALOGD("Location Update Reading thread didn't start!!! ");
+		 }
+
 	 }
 //
 //	std::string methodclazz=method->clazz->descriptor;

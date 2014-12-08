@@ -31,9 +31,9 @@ double accData[100];
 std::string curractivity;
 bool accSensorisPrepared = false;
 sp<SensorEventQueue> q;
-
-const char* activityFile = "/sdcard/ActivityData";
-const char* accDataFile  = "sdcard/AccelerometerData";
+//Just for debugging
+//const char* activityFile = "/sdcard/ActivityData";
+//const char* accDataFile  = "sdcard/AccelerometerData";
 
 
 /** Helper only used while debugging**/

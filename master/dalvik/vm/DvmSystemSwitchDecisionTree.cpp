@@ -38,6 +38,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	e_policy_t curpolicy = bestfit;
 	int wifi_connect = 0;
 	unsigned short current_activity = ACTIVITY_MASK_STILL | ACTIVITY_MASK_WALK | ACTIVITY_MASK_RUN;
+	unsigned short current_location = LOCATION_MASK_HOME | LOCATION_MASK_WORK | LOCATION_MASK_MALL | LOCATION_MASK_ANYWHERE;
 	//flags
 	//bool Check_Temp_All = false;
 	bool Check_Volt_All = false;
@@ -69,6 +70,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	}
 	wifi_connect = opt->connect.wifi_state;
 	current_activity = opt->curActivity;
+	current_location = opt->curLocation.locationMask;
 	/**************************************************************************************** */
 
 
@@ -193,6 +195,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 								u4 priority =10000;
 								bool tag_method_found_with_conn = false;
 								bool tag_method_found_with_activity = false;
+								bool tag_method_found_with_location = false;
 								key candidateMethod;
 								for(u4 piter =0; piter < powerIter.size(); piter++){
 									if ((powerIter.at(piter)->second.priority < priority)){
@@ -207,9 +210,15 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 											ClassMethodIds =  powerIter.at(piter)->first;
 											tag_method_found_with_activity = true;
 										}
+
+										// wifi and activity and location are checked independently
+										if ((current_location & powerIter.at(piter)->second.locationmask) != 0){
+											ClassMethodIds =  powerIter.at(piter)->first;
+											tag_method_found_with_location = true;
+										}
 									}
 								}
-								if(tag_method_found_with_conn == false && tag_method_found_with_activity == false) // no match method with required conn is found
+								if(tag_method_found_with_conn == false && tag_method_found_with_activity == false && tag_method_found_with_location == false)  // no match method with required conn is found
 									ClassMethodIds = candidateMethod; 	//take the highest priority in power regardless the conn;
 							}
 							else {
@@ -217,6 +226,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 								u4 priority =10000; //any big number
 								bool tag_method_found_with_conn = false;
 								bool tag_method_found_with_activity = false;
+								bool tag_method_found_with_location = false;
 								key candidateMethod;
 								for (u4 titer =0; titer < tempIter.size();titer++){
 									if(tempIter.at(titer)->second.priority < priority){
@@ -231,9 +241,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 											ClassMethodIds =  tempIter.at(titer)->first;
 											tag_method_found_with_activity = true;
 										}
+										// wifi and activity and location are checked independently
+										if ((current_location & tempIter.at(titer)->second.locationmask) != 0){
+											ClassMethodIds =  tempIter.at(titer)->first;
+											tag_method_found_with_location = true;
+										}
 									}
 								}
-								if(tag_method_found_with_conn == false && tag_method_found_with_activity == false) // no match method with required conn is found
+								if(tag_method_found_with_conn == false && tag_method_found_with_activity == false && tag_method_found_with_location == false) // no match method with required conn is found
 									ClassMethodIds = candidateMethod; 	//take the highest priority in temp regardless the conn;
 							}
 						}
@@ -250,6 +265,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 										u4 priority =10000;
 										bool tag_method_found_with_conn = false;
 										bool tag_method_found_with_activity = false;
+										bool tag_method_found_with_location = false;
 										key candidateMethod;
 										for(u4 piter =0; piter < powerIter.size(); piter++){
 											if (powerIter.at(piter)->second.priority < priority){
@@ -264,9 +280,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 													ClassMethodIds =  powerIter.at(piter)->first;
 													tag_method_found_with_activity = true;
 												}
+												// wifi and activity and location are checked independently
+												if ((current_location & powerIter.at(piter)->second.locationmask) != 0){
+													ClassMethodIds =  powerIter.at(piter)->first;
+													tag_method_found_with_location = true;
+												}
 											}
 										}
-										if(tag_method_found_with_conn == false && tag_method_found_with_activity == false) // no match method with required conn is found
+										if(tag_method_found_with_conn == false && tag_method_found_with_activity == false && tag_method_found_with_location == false ) // no match method with required conn is found
 											ClassMethodIds = candidateMethod; 	//take the highest priority in temp regardless the conn;
 									}
 								}
@@ -283,6 +304,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 										u4 priority =10000;
 										bool tag_method_found_with_conn = false;
 										bool tag_method_found_with_activity = false;
+										bool tag_method_found_with_location = false;
 										key candidateMethod;
 										for(u4 titer =0; titer < tempIter.size(); titer++){
 											if (tempIter.at(titer)->second.priority < priority){
@@ -297,9 +319,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 													ClassMethodIds =  tempIter.at(titer)->first;
 													tag_method_found_with_activity = true;
 												}
+												// wifi and activity and location are checked independently
+												if ((current_location & tempIter.at(titer)->second.locationmask) != 0){
+													ClassMethodIds =  tempIter.at(titer)->first;
+													tag_method_found_with_location = true;
+												}
 											}
 										}
-										if(tag_method_found_with_conn == false && tag_method_found_with_activity == false) // no match method with required conn is found
+										if(tag_method_found_with_conn == false && tag_method_found_with_activity == false && tag_method_found_with_location == false) // no match method with required conn is found
 											ClassMethodIds = candidateMethod; 	//take the highest priority in temp regardless the conn;
 									}
 								}
@@ -319,6 +346,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 										u4 priority =10000;
 										bool tag_method_found_with_conn = false;
 										bool tag_method_found_with_activity = false;
+										bool tag_method_found_with_location = false;
 										key candidateMethod;
 										for(u4 piter =0; piter < powerIter.size(); piter++){
 											if (powerIter.at(piter)->second.priority < priority){
@@ -332,6 +360,11 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 												if ((current_activity & powerIter.at(piter)->second.activitymask) != 0){
 													ClassMethodIds =  powerIter.at(piter)->first;
 													tag_method_found_with_activity = true;
+												}
+												// wifi and activity and location are checked independently
+												if ((current_location & powerIter.at(piter)->second.activitymask) != 0){
+													ClassMethodIds =  powerIter.at(piter)->first;
+													tag_method_found_with_location = true;
 												}
 											}
 										}
@@ -353,6 +386,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 										u4 priority =10000;
 										bool tag_method_found_with_conn = false;
 										bool tag_method_found_with_activity = false;
+										bool tag_method_found_with_location = false;
 										key candidateMethod;
 										for(u4 titer =0; titer < tempIter.size(); titer++){
 											if (tempIter.at(titer)->second.priority < priority){
@@ -367,9 +401,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 													ClassMethodIds =  tempIter.at(titer)->first;
 													tag_method_found_with_activity = true;
 												}
+												// wifi and activity and location are checked independently
+												if ((current_location & tempIter.at(titer)->second.locationmask) != 0){
+													ClassMethodIds =  tempIter.at(titer)->first;
+													tag_method_found_with_location = true;
+												}
 											}
 										}
-										if(tag_method_found_with_conn == false && tag_method_found_with_activity == false) // no match method with required conn is found
+										if(tag_method_found_with_conn == false && tag_method_found_with_activity == false && tag_method_found_with_location == false) // no match method with required conn is found
 											ClassMethodIds = candidateMethod; 	//take the highest priority in temp regardless the conn;
 									}
 								}
@@ -387,6 +426,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 							u4 priority =10000;
 							bool tag_method_found_with_conn = false;
 							bool tag_method_found_with_activity = false;
+							bool tag_method_found_with_location = false;
 							key candidateMethod;
 							for(u4 viter =0; viter < voltIter.size(); viter++){
 								if (voltIter.at(viter)->second.priority < priority){
@@ -402,9 +442,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 										ClassMethodIds =  voltIter.at(viter)->first;
 										tag_method_found_with_activity = true;
 									}
+									// wifi and activity and location are checked independently
+									if ((current_location & voltIter.at(viter)->second.locationmask) != 0){
+										ClassMethodIds =  voltIter.at(viter)->first;
+										tag_method_found_with_location = true;
+									}
 								}
 							}
-							if(tag_method_found_with_conn == false && tag_method_found_with_activity == false) // no match method with required conn is found
+							if(tag_method_found_with_conn == false && tag_method_found_with_activity == false && tag_method_found_with_location == false) // no match method with required conn is found
 								ClassMethodIds = candidateMethod; 	//take the highest priority in temp regardless the conn;
 						}
 					}
@@ -477,6 +522,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 						//return the highest priority method for the wifi that matches activity
 						u4 priority =10000;
 						bool tag_method_found_with_activity = false;
+						bool tag_method_found_with_location = false;
 						key candidateMethod;
 						for(u4 witer =0; witer < wifiIter.size(); witer++){
 							if (wifiIter.at(witer)->second.priority < priority){
@@ -486,10 +532,15 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 									tag_method_found_with_activity = true;
 									ClassMethodIds = wifiIter.at(witer)->first;
 								}
+								// activity and location are checked independently
+								if ((current_location & wifiIter.at(witer)->second.activitymask) != 0){
+									tag_method_found_with_location = true;
+									ClassMethodIds = wifiIter.at(witer)->first;
+								}
 							}
 						}
 
-						if(tag_method_found_with_activity == false){
+						if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 							ClassMethodIds = candidateMethod;
 						}
 					}
@@ -573,6 +624,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 									//return the highest priority of power iterators with opt connectivity required that matches activity
 									u4 priority =10000;
 									bool tag_method_found_with_activity = false;
+									bool tag_method_found_with_location = false;
 									key candidateMethod;
 									for(u4 piter =0; piter < powerIter.size(); piter++){
 										if ((powerIter.at(piter)->second.priority < priority)){
@@ -583,9 +635,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 												tag_method_found_with_activity = true;
 												ClassMethodIds = powerIter.at(piter)->first;
 											}
+											// activity and location are checked independently
+											if ((current_location & powerIter.at(piter)->second.locationmask) != 0){
+												tag_method_found_with_location = true;
+												ClassMethodIds = powerIter.at(piter)->first;
+											}
 										}
 									}
-									if(tag_method_found_with_activity == false){
+									if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 										ClassMethodIds = candidateMethod;
 									}
 
@@ -594,6 +651,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 									// return highest priority of temp iterators with the opt connectivity required
 									u4 priority =10000; //any big number
 									bool tag_method_found_with_activity = false;
+									bool tag_method_found_with_location = false;
 									key candidateMethod;
 									for (u4 titer =0; titer < tempIter.size();titer++){
 										if(tempIter.at(titer)->second.priority < priority){
@@ -603,9 +661,13 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 												tag_method_found_with_activity = true;
 												ClassMethodIds = tempIter.at(titer)->first;
 											}
+											if ((current_location & tempIter.at(titer)->second.locationmask) != 0){
+												tag_method_found_with_location = true;
+												ClassMethodIds = tempIter.at(titer)->first;
+											}
 										}
 									}
-									if(tag_method_found_with_activity == false){
+									if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 										ClassMethodIds = candidateMethod;
 									}
 								}
@@ -622,6 +684,8 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 											//return method of highest priority from power iteration
 											u4 priority =10000;
 											bool tag_method_found_with_activity = false;
+											bool tag_method_found_with_location = false;
+
 											key candidateMethod;
 											for(u4 piter =0; piter < powerIter.size(); piter++){
 												if (powerIter.at(piter)->second.priority < priority){
@@ -631,9 +695,13 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 														tag_method_found_with_activity = true;
 														ClassMethodIds = powerIter.at(piter)->first;
 													}
+													if ((current_location & powerIter.at(piter)->second.locationmask) != 0){
+														tag_method_found_with_location = true;
+														ClassMethodIds = powerIter.at(piter)->first;
+													}
 												}
 											}
-											if(tag_method_found_with_activity == false){
+											if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 												ClassMethodIds = candidateMethod;
 											}
 										}
@@ -650,6 +718,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 											//return the highest priority of the temp iterartion
 											u4 priority =10000;
 											bool tag_method_found_with_activity = false;
+											bool tag_method_found_with_location = false;
 											key candidateMethod;
 											for(u4 titer =0; titer < tempIter.size(); titer++){
 												if (tempIter.at(titer)->second.priority < priority){
@@ -659,9 +728,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 														tag_method_found_with_activity = true;
 														ClassMethodIds = tempIter.at(titer)->first;
 													}
+													// location and activity are checked independently
+													if ((current_location & tempIter.at(titer)->second.locationmask) != 0){
+														tag_method_found_with_location = true;
+														ClassMethodIds = tempIter.at(titer)->first;
+													}
 												}
 											}
-											if(tag_method_found_with_activity == false){
+											if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 												ClassMethodIds = candidateMethod;
 											}
 										}
@@ -681,6 +755,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 											//no matching // return highest priority of power iter
 											u4 priority =10000;
 											bool tag_method_found_with_activity = false;
+											bool tag_method_found_with_location = false;
 											key candidateMethod;
 											for(u4 piter =0; piter < powerIter.size(); piter++){
 												if (powerIter.at(piter)->second.priority < priority){
@@ -690,9 +765,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 														tag_method_found_with_activity = true;
 														ClassMethodIds = powerIter.at(piter)->first;
 													}
+													// activity and location are checked independently
+													if ((current_location & powerIter.at(piter)->second.locationmask) != 0){
+														tag_method_found_with_location = true;
+														ClassMethodIds = powerIter.at(piter)->first;
+													}
 												}
 											}
-											if(tag_method_found_with_activity == false){
+											if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 												ClassMethodIds = candidateMethod;
 											}
 										}
@@ -710,6 +790,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 											//no matching // return highest priority of temp iteration
 											u4 priority =10000;
 											bool tag_method_found_with_activity = false;
+											bool tag_method_found_with_location = false;
 											key candidateMethod;
 											for(u4 titer =0; titer < tempIter.size(); titer++){
 												if (tempIter.at(titer)->second.priority < priority){
@@ -719,9 +800,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 														tag_method_found_with_activity = true;
 														ClassMethodIds = tempIter.at(titer)->first;
 													}
+													// activity and location are checked independently
+													if ((current_location & tempIter.at(titer)->second.locationmask) != 0){
+														tag_method_found_with_location = true;
+														ClassMethodIds = tempIter.at(titer)->first;
+													}
 												}
 											}
-											if(tag_method_found_with_activity == false){
+											if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 												ClassMethodIds = candidateMethod;
 											}
 										}
@@ -739,6 +825,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 								//get the highest priority of the volt iter
 								u4 priority =10000;
 								bool tag_method_found_with_activity = false;
+								bool tag_method_found_with_location = false;
 								key candidateMethod;
 								for(u4 viter =0; viter < voltIter.size(); viter++){
 									if (voltIter.at(viter)->second.priority < priority){
@@ -748,9 +835,14 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 											tag_method_found_with_activity = true;
 											ClassMethodIds = voltIter.at(viter)->first;
 										}
+										// location and activity are checked independently
+										if ((current_location & voltIter.at(viter)->second.locationmask) != 0){
+											tag_method_found_with_location = true;
+											ClassMethodIds = voltIter.at(viter)->first;
+										}
 									}
 								}
-								if(tag_method_found_with_activity == false){
+								if(tag_method_found_with_activity == false && tag_method_found_with_location == false){
 									ClassMethodIds = candidateMethod;
 								}
 							}
@@ -878,9 +970,9 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 								if (voltIter.at(viter)->second.priority < priority){
 									priority = voltIter.at(viter)->second.priority;
 								//	candidateMethod = voltIter.at(viter)->first;
-									//wifi and activity are checked together because it is must fit
+									//wifi and activity and location are checked together because it is must fit
 									if( (wifi_connect == voltIter.at(viter)->second.conn.wifi_state || voltIter.at(viter)->second.conn.wifi_state == 2 /*don't care*/)
-											&& ((current_activity & voltIter.at(viter)->second.activitymask) != 0) ){
+											&& ((current_activity & voltIter.at(viter)->second.activitymask) != 0)  && ((current_location & voltIter.at(viter)->second.locationmask) != 0)  ){
 										//ClassMethodIds = voltIter.at(viter)->first;
 										tag_method_found = true;
 										ClassMethodIds = voltIter.at(viter)->first;
@@ -1006,9 +1098,9 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 										if (voltIter.at(viter)->second.priority < priority){
 											priority = voltIter.at(viter)->second.priority;
 											//candidateMethod = voltIter.at(viter)->first;
-											//wifi and activity are checked together because it is must fit
+											//wifi and activity and location are checked together because it is must fit
 											if( (wifi_connect == voltIter.at(viter)->second.conn.wifi_state || voltIter.at(viter)->second.conn.wifi_state == 2 /*don't care*/)
-													&& ((current_activity & voltIter.at(viter)->second.activitymask) != 0) ){
+													&& ((current_activity & voltIter.at(viter)->second.activitymask) != 0) && ((current_location & voltIter.at(viter)->second.locationmask) != 0)){
 												//ClassMethodIds = voltIter.at(viter)->first;
 												tag_method_found = true;
 												ClassMethodIds = voltIter.at(viter)->first;
@@ -1148,6 +1240,7 @@ void dvmSystemCoreValuesDebugLUT(){
 
 /*********************** The Decision Tree ***************************** */
 /* The switch policy method using tag*/
+//FIXME: location is still not handled here
 /* State Machine for the decision tree to decide which method to execute */
 // take the operating point and return the key to the method <classID, methodID>
 u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodIds, bool tag){

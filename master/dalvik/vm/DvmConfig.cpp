@@ -20,7 +20,7 @@
 #include <unistd.h> // file close
 #include <inttypes.h> // for intptr_t
 #include <algorithm> // for erase and remove of tabs
-
+#include <pthread.h>
 /* The file is saved in the file system /sdcard/config.xml */
 /* Open the config file, parse it and save VM structures pointers */
 
@@ -28,6 +28,10 @@
 DvmConfigFile gconfigfile;
 DvmConfigMap  gconfigmap;  //used for mapping
 DvmConfigMethodMap gconfigmethodmap;
+DvmConfigLocationMap gconfiglocationmap;
+
+
+
 //DvmMethodTagMap gmethodtagmap;
 //DvmMethodTable gmethodTable;
 
@@ -38,27 +42,27 @@ DvmConfigMethodMap gconfigmethodmap;
 
 ///static map< pair<int,int>, vector<DvmConfigSensitivityItem> > mapMethodItems;  /*using class number as a key, map method number to the item vector*/// not used // cleaned out
 
-typedef map<int, vector<DvmConfigMethod> >::iterator ClassMethodIter;
-typedef map< pair<int,int>, vector<DvmConfigSensitivityItem> >::iterator ClassMethodItemIter;
+//typedef map<int, vector<DvmConfigMethod> >::iterator ClassMethodIter;
+//typedef map< pair<int,int>, vector<DvmConfigSensitivityItem> >::iterator ClassMethodItemIter;
 typedef vector<pair<u4,u4> >::iterator VectorPairRangesIter;
 
-
-static char*
-android_strdup( const char*  str )
-{
-    int    len;
-    char*  copy;
-
-    if (str == NULL)
-        return NULL;
-
-    len  = strlen(str);
-    copy = (char*)malloc(len+1); // I made casting char*
-    memcpy(copy, str, len);
-    copy[len] = 0;
-
-    return copy;
-}
+//
+//static char*
+//android_strdup( const char*  str )
+//{
+//    int    len;
+//    char*  copy;
+//
+//    if (str == NULL)
+//        return NULL;
+//
+//    len  = strlen(str);
+//    copy = (char*)malloc(len+1); // I made casting char*
+//    memcpy(copy, str, len);
+//    copy[len] = 0;
+//
+//    return copy;
+//}
 
 /** Open Configuration File */
 int dvmConfigFileOpen(){
@@ -144,9 +148,11 @@ int dvmConfigFileClose(int configFilefd){
 /*It is called from JarFile.cpp*/
 DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 
+
 	//if(configFilefd > 0)
 	if(pathToConfigFile != NULL)
 	{
+		ALOGD("Parsing the config file %s",pathToConfigFile);
 		std::string line;
 		std::ifstream in(pathToConfigFile);
 	//	std::ifstream in("/sdcard/config.xml");
@@ -162,6 +168,7 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 		bool begin_tagMethodtag			= false;
 		bool begin_tagWifi				= false;
 		bool begin_tagActivity			= false;
+		bool begin_tagLocation			= false;
 		bool begin_tagListItem			= false;
 		bool begin_tagItemName			= false;
 		bool begin_tagListStartValue	= false;
@@ -177,6 +184,14 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 		gconfigfile.numSensitiveClasses = 0;
 		curDvmConfigMethod.itemCount = 0;
 		curDvmConfigClass.numSensitiveMethods = 0;
+
+		/* initialize location map with zeros -- this will be updated at runtime*/
+		ALOGD("----Initializing the location map-----");
+		gconfiglocationmap.insert(std::make_pair(LOCATION_MASK_HOME, locationpair(0,0)));
+		gconfiglocationmap.insert(std::make_pair(LOCATION_MASK_WORK, locationpair(0,0)));
+		gconfiglocationmap.insert(std::make_pair(LOCATION_MASK_MALL, locationpair(0,0)));
+		gconfiglocationmap.insert(std::make_pair(LOCATION_MASK_ANYWHERE,locationpair(0,0)));
+
 
 
 		/* vectors to hold structs */
@@ -203,7 +218,7 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 				getline(in,line);
 
 		        tmp = line;
-		        // remove all occurences of leading and trailing tabs  and spaces in the string
+		        // remove all occurrences of leading and trailing tabs  and spaces in the string
 		        tmp.erase(remove(tmp.begin(), tmp.end(), ' '), tmp.end());
 		        tmp.erase(remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
 
@@ -399,10 +414,17 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 		        	else if(tmp == "</activity>"){
 		        		begin_tagActivity = false;
 		        	}
+		        	else if(tmp == "<location>"){
+		        		begin_tagLocation = true;
+		        		continue;
+		        	}
+		        	else if(tmp == "</location>"){
+		        		begin_tagActivity = false;
+		        	}
 
 
 		        }
-		        // Parse Method details
+		        /***** Parse Method details ******/
 
 		        //Parse Method Name
 		        if(begin_tagMethod && begin_tagMethodName){
@@ -446,6 +468,31 @@ DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile){
 
 		        //	ALOGD("Method %s, Activity Mask = %d",curDvmConfigMethod.methodName.c_str(), curDvmConfigMethod.methodparam.activitymask);
 		           	begin_tagActivity = false;
+		        }
+
+		        // Parse Location
+		        if(begin_tagMethod && begin_tagLocation){
+		        	ALOGD("Parse Location"); // there is a bug here!!! it gives all values always
+		        	if (tmp.find("work") != std::string::npos){
+		        		curDvmConfigMethod.methodparam.locationmask = curDvmConfigMethod.methodparam.locationmask | LOCATION_MASK_WORK;
+
+		        	}
+
+		        	if (tmp.find("home") != std::string::npos){
+		        		curDvmConfigMethod.methodparam.locationmask = curDvmConfigMethod.methodparam.locationmask | LOCATION_MASK_HOME;
+		        	}
+
+		        	if (tmp.find("mall") != std::string::npos){
+		        		curDvmConfigMethod.methodparam.locationmask = curDvmConfigMethod.methodparam.locationmask | LOCATION_MASK_MALL;
+		        	}
+
+		        	if (tmp.find("anywhere") != std::string::npos){
+		        		curDvmConfigMethod.methodparam.locationmask = curDvmConfigMethod.methodparam.locationmask | LOCATION_MASK_ANYWHERE;
+		        	}
+
+
+		        		ALOGD("Method %s, Location Mask = %d",curDvmConfigMethod.methodName.c_str(), curDvmConfigMethod.methodparam.locationmask);
+		           	begin_tagLocation = false;
 		        }
 
 		        // Start parsing the list
@@ -734,6 +781,11 @@ DvmConfigMethodMap* dvmConfigFileGetMapMethodAddress(){
 	return &gconfigmethodmap;
 }
 
+DvmConfigLocationMap* dvmConfigFileGetMapLocationAddress(){
+	return &gconfiglocationmap;
+}
+
+
 u4 dvmConfigMapNumOfSensitiveMethodsInClass(DvmConfigMap* pDvmConfigMap, u4 classId){
 
 	if(pDvmConfigMap == NULL) return 0;
@@ -763,6 +815,15 @@ void dvmConfigMapDebug(DvmConfigMap* pDvmConfigMap){
 		ALOGD("ClassID:%d MethodID:%d ==> Priority:%d ",it->first.first, it->first.second, it->second);
 	}
 }
+
+void dvmConfigLocationMapDebug(DvmConfigLocationMap* pDvmConfigLocationMap){
+	if(pDvmConfigLocationMap==NULL) return;
+	if(pDvmConfigLocationMap->size() ==0 ) return;
+	for(DvmConfigLocationMapIter it=pDvmConfigLocationMap->begin(); it!=pDvmConfigLocationMap->end(); ++it){
+			ALOGD("location:%d ==> latitude:%f, longitude=%f ",it->first, it->second.first, it->second.second);
+	}
+}
+
 
 void dvmConfigMethodMapDebug(DvmConfigMethodMap* pDvmConfigMethodMap){
 
@@ -856,53 +917,250 @@ void dvmGetMethodParam(DvmConfigMethodMap* pDvmConfigMethodMap, u4 classId, u4 m
 		methparam = & it->second;
 }
 
-char* getSystemProperty( const char* propFile, const char* propName )
-{
-    FILE*  file;
-    char   temp[PATH_MAX], *p=temp, *end=p+sizeof(temp);
-    int    propNameLen = strlen(propName);
-    char*  result = NULL;
 
-    file = fopen(propFile, "rb");
-    if (file == NULL) {
-        ALOGD("Could not open file: %s: %s", propFile, strerror(errno));
-        return NULL;
-    }
 
-    while (fgets(temp, sizeof temp, file) != NULL) {
-        /* Trim trailing newlines, if any */
-        p = (char*)memchr(temp, '\0', sizeof temp); // I made the caset char*
-        if (p == NULL)
-            p = end;
-        if (p > temp && p[-1] == '\n') {
-            *--p = '\0';
-        }
-        if (p > temp && p[-1] == '\r') {
-            *--p = '\0';
-        }
-        /* force zero-termination in case of full-buffer */
-        if (p == end)
-            *--p = '\0';
+/**** Thread handler for updating the location map *****/
 
-        /* check that the line starts with the property name */
-        if (memcmp(temp, propName, propNameLen) != 0) {
-            continue;
-        }
-        p = temp + propNameLen;
+pthread_t locationUpdateHandle;
+bool locationUpdatethreadflag = false;
 
-        /* followed by an equal sign */
-        if (p >= end || *p != '=')
-            continue;
-        p++;
+static void* locationUpdateCatcherThreadStart(void* arg);
 
-        /* followed by something */
-        if (p >= end || !*p)
-            break;
 
-        result = android_strdup(p);
-        break;
-    }
-    fclose(file);
-    return result;
+bool dvmConfigLocationUpdateGetThreadFlag(){
+	return locationUpdatethreadflag;
 }
+
+bool dvmConfigLocationUpdateStartup(){
+
+	if(locationUpdatethreadflag == false)
+		if (!dvmCreateInternalThread(&locationUpdateHandle,
+                "CAreDroid Location Update", locationUpdateCatcherThreadStart, NULL))
+			return false;
+
+	locationUpdatethreadflag = true;
+    return true;
+}
+
+void dvmConfigLocationUpdateShutdown(){
+    if (locationUpdatethreadflag == 0)      // not started yet
+        return;
+
+    pthread_kill(locationUpdateHandle, SIGQUIT);
+
+    pthread_join(locationUpdateHandle, NULL);
+    ALOGV("CAreDroid Location Update has shut down");
+}
+
+
+static void locationUpdate(){
+
+	/*Access the file system*/
+	const char* locationFileName = "/sdcard/MyPrefsFile.txt";
+	int locationFileFd = -1;
+	ALOGD("DvmConfig.cpp: Try to open MyPrefsFile.txt");
+	locationFileFd = open(locationFileName, O_RDONLY);
+	if(locationFileFd < 0){
+		 ALOGD("DvmConfig.cpp: FAIL Try to open MyPrefsFile.txt");
+		 return;
+	}
+	else
+		 ALOGD("DvmConfig.cpp: SUCCESS Try to open MyPrefsFile.txt");
+
+	/*** Important FIX --- > needed ****/
+	//ToDo: check if it has been updated instead of continuously parsing
+
+	/*parse the file to get the value of the map*/
+	std::string line;
+	std::string tmp;
+	std::ifstream in(locationFileName);
+	const int MAX_TOKENS_PER_LINE =4; /*512;*/
+
+	// array to store memory addresses of the tokens in buf
+	char* token[MAX_TOKENS_PER_LINE] = {}; // initialize to 0
+	while (!in.eof()){
+
+			getline(in,line);
+
+	        tmp = line;
+	        // remove all occurrences of leading and trailing tabs  and spaces in the string
+	        tmp.erase(remove(tmp.begin(), tmp.end(), ' '), tmp.end());
+	        tmp.erase(remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
+
+	        if (tmp.find("work") != std::string::npos){
+	        	ALOGD("DvmConfig.cpp: found work in the MyPrefsFile");
+				char * curline =const_cast<char*>(tmp.c_str());
+				ALOGD("%s", curline);
+				token[0] = strtok(curline, ":"); // first token
+				//ALOGD("first token %s", token[0]);
+				if (token[0]) // zero if line is blank
+				{
+				  for (int n = 1; n < MAX_TOKENS_PER_LINE; n++)
+				  {
+				     token[n] = strtok(0, ":"); // subsequent tokens
+				     //ALOGD("\t %d, %s", n, token[n] );
+				     if (!token[n]) break; // no more tokens
+				  }
+				}
+
+		        //get longitude and latitude
+		        char* latitude = token[1];
+		        char* longitude = token[2];
+
+		        //ALOGD("longitude = %s and latitude = %s ",longitude, latitude );
+		        if(gconfiglocationmap.size() > 0){
+		        	gconfiglocationmap[LOCATION_MASK_WORK] =  locationpair(atof(latitude),atof(longitude));
+		        	//ALOGD("Config Map Location is updated with MALL");
+		        }
+
+		        //ALOGD("Config Map Location is updated with Work");
+		        continue;
+	        }
+
+	        if (tmp.find("home") != std::string::npos){
+	        	ALOGD("DvmConfig.cpp: found home in the MyPrefsFile");
+				char * curline =const_cast<char*>(tmp.c_str());
+				token[0] = strtok(curline, ":"); // first token
+				if (token[0]) // zero if line is blank
+				{
+				  for (int n = 1; n < MAX_TOKENS_PER_LINE; n++)
+				  {
+				     token[n] = strtok(0, ":"); // subsequent tokens
+				    // ALOGD("\t %d, %s", n, token[n] );
+				     if (!token[n]) break; // no more tokens
+				  }
+				}
+
+		        //get longitude and latitude
+		        char* latitude = token[1];
+		        char* longitude = token[2];
+
+		        //ALOGD("longitude = %s and latitude = %s ",longitude, latitude );
+		        if(gconfiglocationmap.size() > 0){
+		        	gconfiglocationmap[LOCATION_MASK_HOME] =  locationpair(atof(latitude),atof(longitude));
+		        	//ALOGD("Config Map Location is updated with MALL");
+		        }
+		       // gconfiglocationmap[LOCATION_MASK_HOME] = locationpair(atof(latitude),atof(longitude));
+		       // ALOGD("Config Map Location is updated with Home");
+		        continue;
+	        }
+
+
+	        if (tmp.find("mall") != std::string::npos){
+	        	ALOGD("DvmConfig.cpp: found mall in the MyPrefsFile");
+				char * curline =const_cast<char*>(tmp.c_str());
+				token[0] = strtok(curline, ":"); // first token
+
+				if (token[0]) // zero if line is blank
+				{
+				  for (int n = 1; n < MAX_TOKENS_PER_LINE; n++)
+				  {
+				     token[n] = strtok(0, ":"); // subsequent tokens
+				    // ALOGD("\t %d, %s", n, token[n] );
+				     if (!token[n]) break; // no more tokens
+				  }
+				}
+
+		        //get longitude and latitude
+		        char* latitude = token[1];
+		        char* longitude = token[2];
+		        char* radius = token[3];
+		        //ALOGD("longitude = %s and latitude = %s ",longitude, latitude );
+		       // ALOGD("Size of the location map: %d",gconfiglocationmap.size() );
+
+		        if(gconfiglocationmap.size() > 0){
+		        	gconfiglocationmap[LOCATION_MASK_MALL] =  locationpair(atof(latitude),atof(longitude));
+		        	ALOGD("Config Map Location is updated with MALL");
+		        }
+
+		        continue;
+	        }
+	}
+
+	/* flush the file */
+	//ToDO: Flush the file so that the values are not piled up and the loop is small
+	// It is OK now due to the fact that the loop is till the end of the file then the last value is the one kept in the map
+
+	//Debug the map
+	dvmConfigLocationMapDebug(dvmConfigFileGetMapLocationAddress());
+}
+
+
+static void*locationUpdateCatcherThreadStart(void* arg)
+{
+    Thread* self = dvmThreadSelf();
+
+    UNUSED_PARAMETER(arg);
+
+    while (true)  { //maybe have to put break somewhere
+        dvmChangeStatus(self, THREAD_VMWAIT);
+
+        dvmChangeStatus(self, THREAD_RUNNING);
+
+    	// The thread function
+        locationUpdate();
+
+    	//Check the file every one second
+    	dvmThreadSleep(1000, 0);
+    }
+
+    return NULL;
+}
+
+
+
+
+
+
+
+//not used
+//char* getSystemProperty( const char* propFile, const char* propName )
+//{
+//    FILE*  file;
+//    char   temp[PATH_MAX], *p=temp, *end=p+sizeof(temp);
+//    int    propNameLen = strlen(propName);
+//    char*  result = NULL;
+//
+//    file = fopen(propFile, "rb");
+//    if (file == NULL) {
+//        ALOGD("Could not open file: %s: %s", propFile, strerror(errno));
+//        return NULL;
+//    }
+//
+//    while (fgets(temp, sizeof temp, file) != NULL) {
+//        /* Trim trailing newlines, if any */
+//        p = (char*)memchr(temp, '\0', sizeof temp); // I made the caset char*
+//        if (p == NULL)
+//            p = end;
+//        if (p > temp && p[-1] == '\n') {
+//            *--p = '\0';
+//        }
+//        if (p > temp && p[-1] == '\r') {
+//            *--p = '\0';
+//        }
+//        /* force zero-termination in case of full-buffer */
+//        if (p == end)
+//            *--p = '\0';
+//
+//        /* check that the line starts with the property name */
+//        if (memcmp(temp, propName, propNameLen) != 0) {
+//            continue;
+//        }
+//        p = temp + propNameLen;
+//
+//        /* followed by an equal sign */
+//        if (p >= end || *p != '=')
+//            continue;
+//        p++;
+//
+//        /* followed by something */
+//        if (p >= end || !*p)
+//            break;
+//
+//        result = android_strdup(p);
+//        break;
+//    }
+//    fclose(file);
+//    return result;
+//}
 

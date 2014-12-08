@@ -26,17 +26,6 @@
 #define MAX_LUT_SIZE 				20
 /** Clock Update Interval*/
 #define UPDATE_INTERVAL 			5
-/** GPS status unknown. */
-//#define GPS_STATUS_NONE             0
-///** GPS has begun navigating. */
-//#define GPS_STATUS_SESSION_BEGIN    1
-///** GPS has stopped navigating. */
-//#define GPS_STATUS_SESSION_END      2
-///** GPS has powered on but is not navigating. */
-//#define GPS_STATUS_ENGINE_ON        3
-///** GPS is powered off. */
-//#define GPS_STATUS_ENGINE_OFF       4
-/** Decision tree preference */
 #define POWER_PREFERENCE 			0
 #define CONNECTIVITY_PREFERENCE 	1
 /*fwd*/
@@ -79,7 +68,11 @@ struct keyTimeStamp{
 struct DvmSystemLocation{
 	double latitude;
 	double longitude;
+	double locationMask; //home, work, mall, anywhere
 };
+
+
+
 
 struct OperatingPoint{
 	DvmSystemBatteryService batt;

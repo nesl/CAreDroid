@@ -24,6 +24,10 @@ using namespace std;
 #define ACTIVITY_MASK_WALK	0x2
 #define ACTIVITY_MASK_RUN	0x4
 
+#define LOCATION_MASK_HOME		 0x1
+#define LOCATION_MASK_WORK	 	 0x2
+#define LOCATION_MASK_MALL		 0x4
+#define LOCATION_MASK_ANYWHERE	 0x8
 
 /* fwd declarations */
 struct DvmConfigMethod;
@@ -39,6 +43,8 @@ struct Ranges;
 //typedef std::map<u4,u4> DvmMethodTagMap;	// methodID and methodtag
 
 typedef std::pair<u4,u4> key;                // Class ID and method ID
+typedef std::pair<double, double> locationpair;  // latitude and longitude
+
 
 //priority only
 typedef std::map<key, u4> DvmConfigMap; // key is a pair
@@ -52,6 +58,10 @@ typedef std::map<key, struct methodParameter>::iterator DvmConfigMethodMapIter;
 typedef int tag;
 typedef std::map<tag, struct Ranges > DvmConfigTagRanges;
 typedef std::map<tag, struct Ranges >:: iterator DvmConfigTagRangesIter;
+
+//map for locations
+typedef std::map<u4, locationpair> DvmConfigLocationMap; // location(work, home, ...) --> latitude | longitude
+typedef std::map<u4, locationpair>::iterator DvmConfigLocationMapIter;
 
 //before mapping to methodid and classid // Not used now
 //typedef std::map< pair<string,string>, struct methodParameter > DvmMethodTable;
@@ -104,6 +114,8 @@ struct methodParameter{
 	 * |  1	 |	1	|	1	|	7	|	all				|
 	 */
 	unsigned short activitymask;
+	/*Location*/
+	unsigned short locationmask;
 };
 
 struct DvmConfigSensitivityItem{
@@ -161,6 +173,7 @@ int dvmConfigFileClose(int configFilefd);
 DvmConfigFile* dvmConfigFileParse(const char* pathToConfigFile);
 DvmConfigMap* dvmConfigFileGetMapAddress();
 DvmConfigMethodMap* dvmConfigFileGetMapMethodAddress();
+DvmConfigLocationMap* dvmConfigFileGetMapLocationAddress();
 u4 dvmConfigMapNumOfSensitiveMethodsInClass(DvmConfigMap* pDvmConfigMap, u4 classId);
 void dvmConfigMapDebug(DvmConfigMap* pDvmConfigMap);
 void dvmConfigMethodMapDebug(DvmConfigMethodMap* pDvmConfigMethodMap);
@@ -171,9 +184,12 @@ void dvmGetMethodParam(DvmConfigMethodMap* pDvmConfigMethodMap, u4 classId, u4 m
 /*Platform related*/
 //propName could be "ro.buiuld.platform" to know the platform
 //and decide about what are the HW resources this platform has
-char* getSystemProperty( const char* propFile, const char* propName );
+//char* getSystemProperty( const char* propFile, const char* propName );
 
-
+/*thread location update handling*/
+bool dvmConfigLocationUpdateGetThreadFlag();
+bool dvmConfigLocationUpdateStartup();
+void dvmConfigLocationUpdateShutdown();
 
 
 //not used

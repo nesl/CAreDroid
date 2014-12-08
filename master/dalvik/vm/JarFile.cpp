@@ -355,7 +355,7 @@ tryArchive:
   //   ALOGD("JarFile.cpp: Before Calling dexZipEntry for configfile");
      configentry = dexZipFindEntry(&archive, ConfigInJarName);
      if(configentry != NULL){
-    	 //__android_log_print(ANDROID_LOG_DEBUG, "DVM DEBUG", "JarFile.cpp: configentry is not null");
+    	// __android_log_print(ANDROID_LOG_DEBUG, "DVM DEBUG", "JarFile.cpp: configentry is not null");
          char* configcachedName = NULL;
     	 int fdconfig = -1;
     	 /* get the application name without the trailing ID (-1 or -2)
@@ -389,7 +389,7 @@ tryArchive:
     	 //ALOGD("lastPartStr = %s", lastPartStr.c_str());
 
          configcachedName = dexOptGenerateCacheFileName(fileName, "assets@config.xml");
-//        __android_log_print(ANDROID_LOG_DEBUG, "DVM DEBUG", "JarFile.cpp: cache name = %s", cachedName2);
+        //__android_log_print(ANDROID_LOG_DEBUG, "DVM DEBUG", "JarFile.cpp: cache name = %s", configcachedName);
 
         /* Form the cache directory of the configFile */
         lastPartStr = "/data/"+ lastPartStr + "/cache";
@@ -423,7 +423,8 @@ tryArchive:
        	}
      }
      else
-     { //__android_log_print(ANDROID_LOG_DEBUG, "DVM DEBUG", "JarFile.cpp: configentry is NULL");
+     {
+    	// __android_log_print(ANDROID_LOG_DEBUG, "DVM DEBUG", "JarFile.cpp: configentry is NULL");
 
      }
      //endsalma
