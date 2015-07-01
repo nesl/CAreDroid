@@ -19,37 +19,6 @@ using namespace android;
 u4 TIME_STAMP = 0;
 DvmLUTMap gDvmLUTMap;
 
-// just to test if permission can be checked during the decision
-// just needs to put them attached to the thread of the class not the thread of the interpreter
-// the right permissions will not be captured in this place because the UID is not right in this place
-static bool check_permissions(){
-
-	if(checkCallingPermission(String16("android.permission.DUMP"))){
-		    ALOGD("Permission Dump is granted");
-
-	}
-	else{
-		ALOGD("Permission Dump is not granted");
-
-	}
-
-	if(checkCallingPermission(String16("android.permission.WIFI_STATE"))){
-		    ALOGD("Permission wifi state is granted");
-
-	}
-	else{
-		ALOGD("Permission wifi state is not granted");
-
-	}
-
-
-
-	return true;
-	//android.permission.ACCESS_WIFI_STATE
-	//android.permission.WRITE_EXTERNAL_STORAGE
-	//android.permission.ACCESS_FINE_LOCATION
-	//android.hardware.sensor.accelerometer
-}
 
 /*********************** The Decision Tree ***************************** */
 /* The switch policy method */
@@ -2224,4 +2193,38 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	return ClassMethodIds.second;
 }
 /* ********************************************************************* */
+
+
+// just to test if permission can be checked during the decision
+// just needs to put them attached to the thread of the class not the thread of the interpreter
+// the right permissions will not be captured in this place because the UID is not right in this place
+static bool check_permissions(){
+
+	if(checkCallingPermission(String16("android.permission.DUMP"))){
+		    ALOGD("Permission Dump is granted");
+
+	}
+	else{
+		ALOGD("Permission Dump is not granted");
+
+	}
+
+	if(checkCallingPermission(String16("android.permission.WIFI_STATE"))){
+		    ALOGD("Permission wifi state is granted");
+
+	}
+	else{
+		ALOGD("Permission wifi state is not granted");
+
+	}
+
+
+
+	return true;
+	//android.permission.ACCESS_WIFI_STATE
+	//android.permission.WRITE_EXTERNAL_STORAGE
+	//android.permission.ACCESS_FINE_LOCATION
+	//android.hardware.sensor.accelerometer
+}
+
 
