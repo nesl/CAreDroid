@@ -39,11 +39,7 @@ u4 dvmSystemReturnMethod(DvmDex* pDvmDex, string className, key curClassMethodId
 	vector<DvmConfigMethodMapIter> tagIter;
 
 	OperatingPoint* opt = dvmGetCurOperatingPoint(); //gCurOperatingpoint is defined in "DvmSystemCoreValues.h"
-
-	if(check_permissions() == true) ALOGD("We checked permission");
-
-
-
+	if(check_permissions() == true) ALOGD("permission checked");
 	/*default initialization*/
 	//int preference = POWER_PREFERENCE;
 	e_preference_t preference = power_preference;
